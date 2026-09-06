@@ -1,16 +1,18 @@
-"""Main entrypoint for FeedControl FastAPI application."""
+"""Main entrypoint for FeedControl / FeedCraft FastAPI application."""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.api.agent_routes import router as agent_router
 from app.api.routes import router as api_router
 
 app = FastAPI(
-    title="FeedControl Recommendation Engine",
+    title="FeedCraft Recommendation Engine",
     description=(
-        "An AI-driven social media recommendation engine prototype (Phase 1 & 2). "
-        "Provides real-time personalized feed ranking based on explicit user topic weights."
+        "An AI-driven social media recommendation engine prototype (Phases 1, 2 & 3). "
+        "Provides real-time personalized feed ranking and natural language preference control via LLM Agent."
     ),
-    version="1.0.0",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
 )
@@ -24,18 +26,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount API router
+# Mount API routers
 app.include_router(api_router, tags=["Recommendation Engine"])
+app.include_router(agent_router, tags=["LLM Agent"])
 
 
 @app.get("/", tags=["System"])
 def root():
     """Service status and meta information."""
     return {
-        "service": "FeedControl Recommendation Engine",
+        "service": "FeedCraft Recommendation Engine",
         "status": "online",
-        "version": "1.0.0",
-        "docs": "/docs",
+        "version": "1.1.0",
+        "phases_active": [1, 2, 3],
+        "endpoints": {
+            "docs": "/docs",
+            "feed": "/feed/{user_id}",
+            "agent_chat": "/agent/chat",
+        },
     }
 
 
